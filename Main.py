@@ -16,28 +16,28 @@ now = datetime.now(tz)
 
 
 def main():
+    print("Working")
 
-    #at 10:30 am Eastern Time get the top 5 highest changed gainer stocks
+    # at 10:30 am Eastern Time get the top 5 highest changed gainer stocks
 
-    #load all data from the previous session and load the money available (*0.75) into the program
+    # load all data from the previous session and load the money available (*0.75) into the program
 
-    #then, make calls to each stock every minute.
+    # then, make calls to each stock every minute.
 
     find_top_stocks()
 
 
 def find_top_stocks():
-
     print("Scrape scrape scrape")
 
-    browser = webdriver.Chrome(desired_capabilities=caps,executable_path='/Users/markbarton/Downloads/chromedriver')
+    browser = webdriver.Chrome(desired_capabilities=caps, executable_path='chromedriver')
     browser.get('https://uk.finance.yahoo.com/gainers/')
 
-    #consent page
+    # consent page
     consentbutton = browser.find_element_by_name('agree')
     consentbutton.click()
 
-    #main page
+    # main page
     time.sleep(4)
     change = browser.find_element_by_css_selector('span[data-reactid="57"]')
     change.click()
@@ -50,43 +50,49 @@ def find_top_stocks():
     rows = table.find_elements_by_tag_name("tr")
 
     symbols = []
-    i = 4
+    i = 0
 
     while i <= 4:
         col = rows[i].find_elements_by_tag_name("td")[0]
         symbols.append(col.text)
-        i = i+1
+        i = i + 1
 
-
-    time.sleep(10)
     browser.quit()
 
     get_stocks_data(symbols)
 
 
 def get_stocks_data(symbols):
-
     key = 'G1523UGKW3CJ6FHH'
 
     time = now.strftime("%H:%M:%S")
 
-    for symbol in symbols:
-        response = requests.get('https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + key)
-        parsed = json.loads(response.text)
-        stock = Stocks(parsed["Global Quote"]["01. symbol"], parsed["Global Quote"]["02. open"], parsed["Global Quote"]["03. high"], parsed["Global Quote"]["04. low"], parsed["Global Quote"]["05. price"], now.strftime("%H:%M:%S"))
+    # before collecting the stock data, place a timestamp down
+
+    with open('stock_data.json') as json_file:
+        data = json.load(json_file)
+
+    data['Stocks'].update([time])
+
+    # for symbol in symbols:
+    #     response = requests.get(
+    #         'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + key)
+    #     parsed = json.loads(response.text)
+    #     data['Stocks'][time](parsed["Global Quote"]["01. symbol"], parsed["Global Quote"]["02. open"],
+    #                          parsed["Global Quote"]["03. high"], parsed["Global Quote"]["04. low"],
+    #                          parsed["Global Quote"]["05. price"])
+
+    # #write back to file
+    with open('stock_data.json', 'w') as outfile:
+        json.dump(data, outfile)
 
 
 def buy_stock(stock):
     print("buying " + stock)
 
 
-
-
 def sell_stock(stock):
     print("selling " + stock)
-
-
-
 
 
 if __name__ == "__main__":
