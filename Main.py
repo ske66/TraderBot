@@ -6,7 +6,7 @@ from datetime import datetime
 from pytz import timezone
 from StocksData import Stocks
 import json
-import sys
+import pprint
 
 caps = DesiredCapabilities().CHROME
 caps["pageLoadStrategy"] = "eager"
@@ -16,29 +16,29 @@ now = datetime.now(tz)
 
 
 def main():
-    print("Working")
 
-    # at 10:30 am Eastern Time get the top 5 highest changed gainer stocks
-
-    # load all data from the previous session and load the money available (*0.75) into the program
-
-    # then, make calls to each stock every minute.
-
-    find_top_stocks()
+    #FOR TESTING PURPOSES, use these stocks saved in the symbols file
+ #   with open("symbols.json", 'rb') as file:
+ #       if file.read(2) != '[]':
+ #           with open('symbols.json') as json_file:
+ #               symbols = json.load(json_file)
+ #               get_stocks_data(symbols)
+ #       else:
+            find_top_stocks()
 
 
 def find_top_stocks():
-    print("Scrape scrape scrape")
 
+    #Find the top 5 stocks in the gainers trend table. get the top 5 witht he highest amount of change
     browser = webdriver.Chrome(desired_capabilities=caps, executable_path='chromedriver')
     browser.get('https://uk.finance.yahoo.com/gainers/')
 
     # consent page
     consentbutton = browser.find_element_by_name('agree')
     consentbutton.click()
-
     # main page
     time.sleep(4)
+    browser.execute_script("window.scrollTo(600, document.body.scrollHeight);")
     change = browser.find_element_by_css_selector('span[data-reactid="57"]')
     change.click()
     time.sleep(2)
@@ -59,32 +59,41 @@ def find_top_stocks():
 
     browser.quit()
 
+    with open('symbols.json', 'w') as f:
+        json.dump(symbols, f)
+
     get_stocks_data(symbols)
 
 
 def get_stocks_data(symbols):
     key = 'G1523UGKW3CJ6FHH'
 
-    time = now.strftime("%H:%M:%S")
-
-    # before collecting the stock data, place a timestamp down
-
     with open('stock_data.json') as json_file:
         data = json.load(json_file)
 
-    data['Stocks'].update([time])
+        a = {
+            '12:00:00': {
+            }
+        }
 
-    # for symbol in symbols:
-    #     response = requests.get(
-    #         'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + key)
-    #     parsed = json.loads(response.text)
-    #     data['Stocks'][time](parsed["Global Quote"]["01. symbol"], parsed["Global Quote"]["02. open"],
-    #                          parsed["Global Quote"]["03. high"], parsed["Global Quote"]["04. low"],
-    #                          parsed["Global Quote"]["05. price"])
+    for symbol in symbols:
+        response = requests.get('https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + key)
+        parsed = json.loads(response.text)
+        a['12:00:00'] = { symbol: [{
+                'ok': parsed['Global Quote']['02. open'],
+                'od': parsed['Global Quote']['03. high'],
+                'ddk': parsed['Global Quote']['04. low'],
+                'osdsd': parsed['Global Quote']['05. price']
+                }]
+            }
+        json.dumps(a)
+        print(json.dumps(a, indent=4, sort_keys=True))
 
-    # #write back to file
-    with open('stock_data.json', 'w') as outfile:
-        json.dump(data, outfile)
+        with open('stock_data.json', 'w') as outfile:
+            json.dump(a, outfile)
+
+    #distinguish bullish engulfing pattern
+
 
 
 def buy_stock(stock):
