@@ -1,7 +1,7 @@
 import yfinance as yf
 import csv
 
-companies = csv.reader(open('sp500_companies.csv'))
+companies = csv.reader(open('russell100_companies.csv'))
 
 for company in companies:
     print(company)
@@ -10,7 +10,7 @@ for company in companies:
 
     history_filename = 'history/{}.csv'.format(symbol)
 
-    f = open(history_filename, 'w')
+    f = open(history_filename, 'w', newline='')
 
     ticker = yf.Ticker(symbol)
 
