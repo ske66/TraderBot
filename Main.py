@@ -21,18 +21,13 @@ def main():
 
         candles = candles[-4:]
 
-    try:
-        if len(candles) > 1:
+        if len(candles) > 2:
             if is_bullish_engulfing(candles, 3, company):
                 print('{} has a previous day close of {} and a close of {} on {}'.format(ticker,
                                                                                          candles[-2]['Close'],
                                                                                          candles[1]['Close'],
                                                                                          candles[1]['Date']))
                 invest(ticker)
-
-    except EnvironmentError:
-
-        print(company + "Failed")
 
 
 def is_bullish_candlestick(candle):
