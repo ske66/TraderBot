@@ -10,9 +10,9 @@ companies = csv.reader(open('master_stocks_list.csv'))
 
 row_count = 3621 #sum(1 for row in companies)  # fileObject is your csv.reader
 
-sixmonths = (datetime.now() - timedelta(180)).strftime('%Y-%m-%d')
+year = (datetime.now() - timedelta(365)).strftime('%Y-%m-%d')
 
-yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
+today = (datetime.now() - timedelta(0)).strftime('%Y-%m-%d')
 
 for company in companies:
     count += 1
@@ -25,7 +25,7 @@ for company in companies:
 
     ticker = yf.Ticker(symbol)
 
-    df = ticker.history(start=sixmonths, end=yesterday)
+    df = ticker.history(start=year, end=today)
 
     f.write(df.to_csv())
 
