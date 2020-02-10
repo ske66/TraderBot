@@ -99,6 +99,10 @@ def invest(stocks):
 
     print('\n\rYou have made £{} in profit'.format(round(totalvalue - (len(stocks)*1000)), 5))
 
+    print("Stocks Traded: ")
+    for stock in stocks:
+        print(stock)
+
 
 
 
