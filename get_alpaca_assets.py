@@ -1,4 +1,5 @@
-import requests, json
+import json
+import requests
 
 api_key = 'PKJMB4IWG9R6WSA1YQRS'
 private_key = 'pQ2Lec7oHlDcRCI8QNSTvzsyzXZlPS180V3MEY4v'
@@ -25,7 +26,3 @@ def create_order(symbol, qty, side, type, time_in_force):
     response = requests.post(ORDERS_URL, json=data, headers=HEADERS)
 
     return json.loads(response.content)
-
-response = create_order("ANSS", "100", "buy", "market", "day")
-
-print(response)
